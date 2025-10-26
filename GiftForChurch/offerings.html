@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-key="offeringsTitle">Offerings - Gift for Church</title>
+<style>
+/* Keep your existing CSS */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  background: url('https://static.vecteezy.com/system/resources/thumbnails/054/916/832/small/serene-underwater-scene-with-sun-rays-penetrating-the-surface-illuminating-sandy-ocean-floor-creating-tranquil-atmosphere-perfect-harmony-of-nature-and-light-ideal-for-meditation-spaces-photo.jpeg')
+              no-repeat center center/cover;
+  color:#056676;
+  min-height:100vh;
+}
+header {
+  background: rgba(255,255,255,0.9);
+  color:#056676;
+  padding: 25px;
+  text-align: center;
+  border-bottom:2px solid #a8edea;
+  border-bottom-left-radius:25px;
+  border-bottom-right-radius:25px;
+  box-shadow:0 6px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(5px);
+}
+header h1 { margin:0; font-size:2rem; color:#056676; text-shadow:2px 2px 6px rgba(255,255,255,0.6); }
+.container {
+  max-width: 550px;
+  margin: 40px auto;
+  padding: 25px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(6px);
+}
+form { display: flex; flex-direction: column; gap: 15px; }
+input, select { padding: 12px; border-radius: 12px; border: 1px solid #056676; outline:none; transition: 0.3s; }
+input:focus, select:focus { border-color:#a8edea; box-shadow:0 0 8px #a8edea55; }
+button {
+  padding: 12px;
+  border:none;
+  border-radius: 12px;
+  background: rgba(168, 237, 234, 0.9);
+  color:#056676;
+  cursor:pointer;
+  transition: all 0.3s;
+  font-weight:700;
+}
+button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.95);
+}
+table { width: 100%; border-collapse: collapse; margin-top: 25px; background: rgba(255,255,255,0.8); border-radius: 10px; overflow: hidden; }
+th, td { border: 1px solid #056676; padding: 10px; text-align: center; }
+th { background: #fff9c4; color:#056676; }
+.account-info { margin: 10px 0; font-weight: bold; color:#056676; }
+.backBtn { margin-top:15px; padding:10px 15px; border:none; border-radius:12px; background: rgba(168, 237, 234, 0.9); color:#056676; cursor:pointer; transition:0.3s; font-weight:700; }
+.backBtn:hover { transform:translateY(-2px) scale(1.03); box-shadow:0 6px 15px rgba(0,0,0,0.2); background: rgba(255,255,255,0.95); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 data-key="offeringsTitle">Offerings & Tithes</h1>
+</header>
+
+<div class="container">
+  <form id="offerForm">
+    <input type="text" id="donorName" placeholder="Member Name" data-key-placeholder="donorName" required>
+    <select id="offerType" required>
+      <option value="" data-key="selectType">Select Type</option>
+      <option value="Tithe" data-key="tithe">Tithe</option>
+      <option value="Offering" data-key="offering">Offering</option>
+    </select>
+    <input type="number" id="offerAmount" placeholder="Amount (ETB)" data-key-placeholder="amount" required min="1">
+    <button type="submit" data-key="addCollection">Add Collection</button>
+  </form>
+
+  <h2 data-key="recordedCollections">Recorded Collections</h2>
+  <table>
+    <thead>
+      <tr>
+        <th data-key="name">Name</th>
+        <th data-key="type">Type</th>
+        <th data-key="amount">Amount (ETB)</th>
+        <th data-key="action">Action</th>
+      </tr>
+    </thead>
+    <tbody id="offerTableBody"></tbody>
+  </table>
+
+  <h2 data-key="onlinePayment">Online Payment</h2>
+  <div class="account-info" data-key="accountNumber">Account Number: 123-456-7890</div>
+  <select id="bankSelect">
+    <option value="" data-key="selectBank">Select Bank</option>
+    <option value="cbe">CBE</option>
+    <option value="abyssinia">Bank of Abyssinia</option>
+  </select>
+  <button onclick="redirectBank()" data-key="payOnline">Pay Online</button>
+
+  <button class="backBtn" onclick="window.location.href='dashboard.html'" data-key="backDashboard">← Back to Dashboard</button>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('currentUser'));
+if(!user){ alert('You must be logged in!'); window.location.href='index.html'; }
+
+const offerForm = document.getElementById('offerForm');
+const offerTableBody = document.getElementById('offerTableBody');
+
+function loadOffers(){
+  const records = JSON.parse(localStorage.getItem('offerRecords')) || [];
+  offerTableBody.innerHTML = '';
+  records.forEach((r, i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.name}</td><td>${r.type}</td><td>${r.amount}</td><td><button onclick="removeOffer(${i})" data-key="remove">Remove</button></td>`;
+    offerTableBody.appendChild(tr);
+  });
+}
+
+function removeOffer(index){
+  const records = JSON.parse(localStorage.getItem('offerRecords')) || [];
+  records.splice(index, 1);
+  localStorage.setItem('offerRecords', JSON.stringify(records));
+  loadOffers();
+}
+
+offerForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('donorName').value.trim();
+  const type = document.getElementById('offerType').value;
+  const amount = parseFloat(document.getElementById('offerAmount').value);
+  if(!name) return alert('Enter member name!');
+  if(!type || isNaN(amount) || amount <= 0) return alert('Enter valid data!');
+  const records = JSON.parse(localStorage.getItem('offerRecords')) || [];
+  records.push({name,type,amount});
+  localStorage.setItem('offerRecords', JSON.stringify(records));
+  offerForm.reset();
+  loadOffers();
+});
+
+function redirectBank(){
+  const bank = document.getElementById('bankSelect').value;
+  if(!bank) return alert('Select a bank first!');
+  if(bank==='cbe') window.open('https://www.combanketh.et/','_blank');
+  if(bank==='abyssinia') window.open('https://www.bankofabyssinia.com/','_blank');
+}
+
+loadOffers();
+</script>
+<script src="lang.js"></script>
+<script>
+function applyLanguage() {
+  document.querySelectorAll("[data-key]").forEach(el=>{
+    const key = el.getAttribute("data-key");
+    if(translations[currentLang] && translations[currentLang][key]){
+      el.innerText = translations[currentLang][key];
+    }
+  });
+  document.querySelectorAll("[data-key-placeholder]").forEach(el=>{
+    const key = el.getAttribute("data-key-placeholder");
+    if(translations[currentLang] && translations[currentLang][key]){
+      el.placeholder = translations[currentLang][key];
+    }
+  });
+}
+window.onload = applyLanguage;
+</script>
+</body>
+</html>

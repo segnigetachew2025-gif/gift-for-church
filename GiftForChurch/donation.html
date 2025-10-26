@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donations Tracker - Gift for Church</title>
+<style>
+body { background: url('background.jpg') no-repeat center center fixed; background-size: cover; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color:#fff; margin:0; padding:0; }
+header { background: rgba(0,72,127,0.7); padding:20px; text-align:center; border-bottom:2px solid #00d4ff; }
+header h1 { font-size:1.8rem; color:#ffd; text-shadow:2px 2px 6px rgba(0,0,0,0.4);}
+.container { max-width:700px; margin:30px auto; padding:20px; background: rgba(0,0,50,0.6); border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3);}
+form { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+input { padding:12px; border-radius:12px; border:1px solid #00d4ff; outline:none; background:rgba(255,255,255,0.2); color:#fff; }
+input:focus { border-color:#00ffff; box-shadow:0 0 8px #00ffff55; }
+button { padding:12px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; font-weight:600; transition:0.3s; }
+button:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 8px 20px rgba(0,212,255,0.5);}
+ul { list-style:none; padding:0; }
+li { background: rgba(0,0,100,0.5); margin-bottom:10px; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; }
+li button { background:#00bcd4; color:white; padding:5px 10px; border-radius:8px; font-size:0.85rem; transition:0.3s; }
+li button:hover { background:#00ffff; color:#000; }
+.backBtn { margin-bottom:20px; padding:10px 15px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; transition:0.3s; }
+.backBtn:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 6px 15px rgba(0,212,255,0.5);}
+footer { text-align:center; padding:15px; background: rgba(0,72,127,0.7); border-top:2px solid #00d4ff; margin-top:20px; color:#fff; border-radius:20px; backdrop-filter: blur(5px);}
+</style>
+</head>
+<body>
+
+<header><h1>Donations Tracker</h1></header>
+
+<div class="container">
+  <button class="backBtn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+
+  <form id="donationForm">
+    <input type="date" id="donDate" required>
+    <input type="text" id="donorName" placeholder="Donor Name" required>
+    <input type="number" id="donAmount" placeholder="Amount" required>
+    <button type="submit">Add Donation</button>
+  </form>
+
+  <h2>Donation Records</h2>
+  <ul id="donationList"></ul>
+</div>
+
+<footer>&copy; 2025 Gift for Church</footer>
+
+<script>
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+if(!currentUser){ alert('Login required'); window.location.href='index.html'; }
+
+const donationForm=document.getElementById('donationForm');
+const donationList=document.getElementById('donationList');
+
+function loadDonations(){
+  let donations=JSON.parse(localStorage.getItem('donations'))||[];
+  donations.sort((a,b)=> new Date(a.date)-new Date(b.date));
+  donationList.innerHTML='';
+  donations.forEach((d,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`${d.date} - ${d.name} - $${d.amount} <button onclick="removeDonation(${i})">Remove</button>`;
+    donationList.appendChild(li);
+  });
+}
+
+function removeDonation(i){
+  let donations=JSON.parse(localStorage.getItem('donations'))||[];
+  donations.splice(i,1);
+  localStorage.setItem('donations',JSON.stringify(donations));
+  loadDonations();
+}
+
+donationForm.addEventListener('submit',e=>{
+  e.preventDefault();
+  const date=document.getElementById('donDate').value;
+  const name=document.getElementById('donorName').value;
+  const amount=parseFloat(document.getElementById('donAmount').value);
+  let donations=JSON.parse(localStorage.getItem('donations'))||[];
+  donations.push({date,name,amount});
+  localStorage.setItem('donations',JSON.stringify(donations));
+  donationForm.reset();
+  loadDonations();
+});
+
+loadDonations();
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Church Calendar - Gift for Church</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background: url('background.jpg') no-repeat center center fixed; background-size: cover; min-height:100vh; color:#fff; }
+header { background: rgba(0,72,127,0.7); padding:20px; text-align:center; border-bottom:2px solid #00d4ff; box-shadow:0 6px 25px rgba(0,0,0,0.2);}
+header h1 { font-size:1.8rem; color:#ffd; text-shadow:2px 2px 6px rgba(0,0,0,0.4);}
+.container { max-width:700px; margin:30px auto; padding:20px; background: rgba(0,0,50,0.6); border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3);}
+form { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+input { padding:12px; border-radius:12px; border:1px solid #00d4ff; outline:none; background:rgba(255,255,255,0.2); color:#fff; }
+input:focus { border-color:#00ffff; box-shadow:0 0 8px #00ffff55; }
+button { padding:12px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; font-weight:600; transition:0.3s;}
+button:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 8px 25px rgba(0,212,255,0.5);}
+ul { list-style:none; padding:0; }
+li { background: rgba(0,0,50,0.5); margin-bottom:10px; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; }
+li button { background:#00bcd4; color:white; padding:5px 10px; border-radius:8px; font-size:0.85rem; transition:0.3s; }
+li button:hover { background:#00ffff; color:#000; }
+.backBtn { margin-bottom:20px; padding:10px 15px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; transition:0.3s; }
+.backBtn:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 6px 15px rgba(0,212,255,0.5);}
+footer { text-align:center; padding:15px; background: rgba(0,72,127,0.7); border-top:2px solid #00d4ff; margin-top:20px; color:#fff; border-radius:20px; backdrop-filter: blur(5px);}
+#ethiopianCalendar table { width:100%; border-collapse: collapse; text-align:center; margin-bottom:20px; }
+#ethiopianCalendar th, #ethiopianCalendar td { padding:5px; border:1px solid #00d4ff; }
+#ethiopianCalendar caption { font-weight:bold; font-size:1.2rem; margin-bottom:10px; color:#ffd; }
+#ethiopianCalendar td.today { background:#00ffff; color:#000; border-radius:50%; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<header><h1>Church Events Calendar</h1></header>
+
+<div class="container">
+  <button class="backBtn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+
+  <!-- Ethiopian Calendar Table -->
+  <div id="ethiopianCalendar"></div>
+
+  <form id="eventForm">
+    <input type="date" id="eventDate" required>
+    <input type="text" id="eventTitle" placeholder="Event Title" required>
+    <button type="submit">Add Event</button>
+  </form>
+
+  <h2>Upcoming Events</h2>
+  <ul id="eventList"></ul>
+</div>
+
+<footer>&copy; 2025 Gift for Church</footer>
+
+<script>
+// Ethiopian Month Names
+const monthNames = ["Meskerem","Tikimt","Hidar","Tahsas","Tir","Yekatit",
+                    "Megabit","Miyazya","Ginbot","Sene","Hamle","Nehase","Pagume"];
+
+// Generate Ethiopian Calendar Table with Tikimt 15, 2018 on Sunday
+function generateEthiopianCalendar() {
+    const etMonth = 2; // Tikimt
+    const etYear = 2018;
+    const daysInMonth = 30; // Tikimt always 30 days
+
+    let table = `<table>
+        <caption>${monthNames[etMonth-1]} ${etYear} (Ethiopian Calendar)</caption>
+        <thead><tr>
+        <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th>
+        <th>Thu</th><th>Fri</th><th>Sat</th>
+        </tr></thead><tbody>`;
+
+    let day = 1;
+    let firstDay = 0; // Sunday
+    for(let i=0;i<6;i++){
+        table += "<tr>";
+        for(let j=0;j<7;j++){
+            if(i===0 && j<firstDay || day>daysInMonth){
+                table += "<td>&nbsp;</td>";
+            } else {
+                // Highlight 15th
+                let todayClass = (day===15) ? "today" : "";
+                table += `<td class="${todayClass}">${day}</td>`;
+                day++;
+            }
+        }
+        table += "</tr>";
+        if(day>daysInMonth) break;
+    }
+    table += "</tbody></table>";
+    document.getElementById("ethiopianCalendar").innerHTML = table;
+}
+
+// --- Event Functions ---
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+if(!currentUser){ alert('Login required'); window.location.href='index.html'; }
+
+const eventForm = document.getElementById('eventForm');
+const eventList = document.getElementById('eventList');
+
+function loadEvents(){
+  let events = JSON.parse(localStorage.getItem('events'))||[];
+  events.sort((a,b)=> new Date(a.date) - new Date(b.date));
+  eventList.innerHTML = '';
+  events.forEach((e,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `${e.date} - ${e.title} <button onclick="removeEvent(${i})">Remove</button>`;
+    eventList.appendChild(li);
+  });
+}
+
+function removeEvent(i){
+  let events = JSON.parse(localStorage.getItem('events'))||[];
+  events.splice(i,1);
+  localStorage.setItem('events', JSON.stringify(events));
+  loadEvents();
+}
+
+eventForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const date = document.getElementById('eventDate').value;
+  const title = document.getElementById('eventTitle').value;
+  let events = JSON.parse(localStorage.getItem('events'))||[];
+  events.push({date,title});
+  localStorage.setItem('events', JSON.stringify(events));
+  eventForm.reset();
+  loadEvents();
+});
+
+// --- Initialize ---
+generateEthiopianCalendar();
+loadEvents();
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

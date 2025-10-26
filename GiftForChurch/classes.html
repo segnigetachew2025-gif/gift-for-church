@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classes - Gift for Church</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  background: url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color:#fff;
+  min-height:100vh;
+}
+header { background: rgba(0,72,127,0.7); padding:15px; text-align:center; border-bottom:2px solid #00d4ff; box-shadow:0 6px 25px rgba(0,0,0,0.2);}
+header h1 { font-size:1.8rem; color:#ffd; text-shadow:2px 2px 6px rgba(0,0,0,0.4);}
+.container { max-width:700px; margin:30px auto; padding:20px; background: rgba(0,0,50,0.6); border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3);}
+form { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+select,input { padding:12px; border-radius:12px; border:1px solid #00d4ff; outline:none; transition:0.3s; background:rgba(255,255,255,0.2); color:#fff; }
+select:focus,input:focus { border-color:#00ffff; box-shadow:0 0 8px #00ffff55; }
+button { padding:12px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; font-weight:600; transition:all 0.3s;}
+button:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 8px 25px rgba(0,212,255,0.5);}
+table { width:100%; border-collapse:collapse; margin-top:20px; border-radius:12px; overflow:hidden; }
+th,td { border:1px solid #00d4ff; padding:10px; text-align:center; }
+th { background:#00d4ff; color:white; }
+td button { padding:5px 10px; border-radius:8px; border:none; background:#00bcd4; color:white; cursor:pointer; transition:0.3s;}
+td button:hover { background:#00ffff; color:#000; }
+.backBtn { margin-bottom:20px; padding:10px 15px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; transition:0.3s; }
+.backBtn:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 6px 15px rgba(0,212,255,0.5);}
+footer { text-align:center; padding:15px; background: rgba(0,72,127,0.7); border-top:2px solid #00d4ff; margin-top:20px; color:#fff; border-radius:20px; backdrop-filter: blur(5px);}
+</style>
+</head>
+<body>
+
+<header><h1>Church Sunday Kids Classes & Attendance</h1></header>
+
+<div class="container">
+  <button class="backBtn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+  <form id="classForm">
+    <select id="classSelect" required>
+      <option value="">Select Class</option>
+      <option value="Saturday Bible Class">Saturday Bible Class</option>
+      <option value="Discipleship Class">Discipleship Class</option>
+      <option value="Faith Strengthening Class">Faith Strengthening Class</option>
+      <option value="Service Training Class">Service Training Class</option>
+    </select>
+    <input type="text" id="student" placeholder="Student/Member Name" required>
+    <button type="submit">Add Attendance</button>
+  </form>
+
+  <h2>Attendance Records</h2>
+  <table id="classTable">
+    <thead>
+      <tr>
+        <th>Class</th>
+        <th>Student</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<footer>&copy; 2025 Gift for Church</footer>
+
+<script>
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+if(!currentUser){ alert('Login required'); window.location.href='index.html'; }
+
+const classForm=document.getElementById('classForm');
+const classTable=document.getElementById('classTable').querySelector('tbody');
+
+function loadClasses(){
+  let classes=JSON.parse(localStorage.getItem('classes'))||[];
+  classTable.innerHTML='';
+  classes.forEach((c,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${c.className}</td><td>${c.student}</td><td><button onclick="removeClass(${i})">Remove</button></td>`;
+    classTable.appendChild(tr);
+  });
+}
+
+function removeClass(i){
+  let classes=JSON.parse(localStorage.getItem('classes'))||[];
+  classes.splice(i,1);
+  localStorage.setItem('classes', JSON.stringify(classes));
+  loadClasses();
+}
+
+classForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const className=document.getElementById('classSelect').value;
+  const student=document.getElementById('student').value;
+  let classes=JSON.parse(localStorage.getItem('classes'))||[];
+  classes.push({className,student});
+  localStorage.setItem('classes', JSON.stringify(classes));
+  classForm.reset();
+  loadClasses();
+});
+
+loadClasses();
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

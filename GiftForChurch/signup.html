@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-key="signupTitle">Sign Up - Gift for Church</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+  body {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+    background: url('background.jpg') no-repeat center center/cover;
+    color:#fff;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.15);
+    padding:40px 30px;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    width:360px;
+    text-align:center;
+    backdrop-filter: blur(10px);
+  }
+
+  h1 {
+    color:#fff;
+    margin-bottom:25px;
+    font-size:2rem;
+    text-shadow:0 0 8px rgba(0,0,0,0.4);
+  }
+
+  input {
+    display:block;
+    width:100%;
+    margin-bottom:15px;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    outline:none;
+    transition:0.3s;
+    font-size:1rem;
+    background:rgba(255,255,255,0.8);
+  }
+
+  input:focus { box-shadow:0 0 8px rgba(255,255,255,0.8); }
+
+  button {
+    background:rgba(255,255,255,0.25);
+    color:white;
+    padding:14px;
+    border:none;
+    border-radius:14px;
+    font-size:1.1rem;
+    cursor:pointer;
+    font-weight:700;
+    box-shadow:0 6px 18px rgba(0,0,0,0.35);
+    transition:0.4s;
+    backdrop-filter: blur(6px);
+  }
+
+  button:hover {
+    transform:translateY(-4px) scale(1.05);
+    background:rgba(255,255,255,0.4);
+  }
+
+  p { margin-top:15px; color:#fff; }
+  a { color:#a8edea; text-decoration:none; font-weight:bold; }
+  a:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h1 id="signupTitle" data-key="signup">Sign Up</h1>
+  <form id="signupForm">
+    <input type="text" id="name" placeholder="Full Name" data-placeholder="fullname" required>
+    <input type="email" id="email" placeholder="Email" data-placeholder="email" required>
+    <input type="password" id="password" placeholder="Password" data-placeholder="password" required>
+    <button type="submit" id="signupBtn" data-key="signup">Sign Up</button>
+  </form>
+  <p id="loginText" data-key="signinPrompt">Already have an account? <a href="signin.html" data-key="loginLink">Log In</a></p>
+</div>
+
+<script src="lang.js"></script>
+<script>
+// Load saved language
+const currentLang = localStorage.getItem('language') || 'en';
+applyTranslations(currentLang);
+
+function applyTranslations(lang) {
+  const translations = {
+    en: {
+      signup: "Sign Up",
+      fullname: "Full Name",
+      email: "Email",
+      password: "Password",
+      signinPrompt: "Already have an account?",
+      loginLink: "Log In"
+    },
+    om: {
+      signup: "Of Galmeessi",
+      fullname: "Maqaa Guutuu",
+      email: "Imeelii",
+      password: "Jecha Darbii",
+      signinPrompt: "Herrega qabaataa?",
+      loginLink: "Seeni"
+    },
+    am: {
+      signup: "ተመዝገብ",
+      fullname: "ሙሉ ስም",
+      email: "ኢሜይል",
+      password: "የይለፍ ቃል",
+      signinPrompt: "መለያ አለዎት?",
+      loginLink: "ግባ"
+    }
+  };
+
+  document.querySelectorAll("[data-key]").forEach(el => {
+    const key = el.getAttribute("data-key");
+    if (translations[lang][key]) {
+      if (el.tagName === "INPUT") {
+        el.placeholder = translations[lang][key];
+      } else {
+        el.textContent = translations[lang][key];
+      }
+    }
+  });
+
+  document.querySelectorAll("[data-placeholder]").forEach(el => {
+    const key = el.getAttribute("data-placeholder");
+    if (translations[lang][key]) {
+      el.placeholder = translations[lang][key];
+    }
+  });
+}
+
+// Signup logic
+const signupForm = document.getElementById('signupForm');
+signupForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  let users = JSON.parse(localStorage.getItem('users')) || [];
+  if (users.find(u => u.email === email)) {
+    alert('Email already registered!');
+    return;
+  }
+
+  users.push({ name, email, password });
+  localStorage.setItem('users', JSON.stringify(users));
+
+  alert('Sign Up Successful! You can now log in.');
+  window.location.href = 'signin.html';
+});
+</script>
+</body>
+</html>

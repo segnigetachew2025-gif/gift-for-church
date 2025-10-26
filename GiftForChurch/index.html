@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift for Church</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+  body {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    background: url('background.jpg') no-repeat center center/cover;
+    text-align:center;
+    padding:20px;
+    color:#fff;
+  }
+
+  h1 {
+    font-size:2.5rem;
+    margin-bottom:25px;
+    font-weight:700;
+    color:#fff;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+  }
+
+  .lang-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-bottom:25px;
+  }
+
+  .lang-btn {
+    padding:12px 18px;
+    font-size:1rem;
+    border-radius:14px;
+    border:2px solid rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.2);
+    color:white;
+    cursor:pointer;
+    min-width:160px;
+    font-weight:600;
+    transition:0.3s;
+    backdrop-filter: blur(6px);
+  }
+
+  .lang-btn:hover {
+    background: rgba(255,255,255,0.4);
+    transform: scale(1.05);
+  }
+
+  .lang-list {
+    display:none;
+    position:absolute;
+    background: rgba(255,255,255,0.85);
+    border-radius:10px;
+    margin-top:5px;
+    min-width:160px;
+    box-shadow:0 6px 15px rgba(0,0,0,0.3);
+    z-index:1000;
+  }
+
+  .lang-list div {
+    padding:10px 15px;
+    cursor:pointer;
+    color:#056676;
+    transition:0.3s;
+  }
+
+  .lang-list div:hover {
+    background:#056676;
+    color:white;
+    font-weight:600;
+  }
+
+  .audio-player {
+    margin:20px 0;
+    width:100%;
+    max-width:420px;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 6px 20px rgba(0,0,0,0.4);
+  }
+  audio { width:100%; display:block; }
+
+  .change-mezmur-btn {
+    margin-top:10px;
+    padding:10px 18px;
+    border:none;
+    border-radius:12px;
+    background: rgba(255,255,255,0.25);
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
+  }
+  .change-mezmur-btn:hover {
+    background: rgba(255,255,255,0.45);
+    transform: scale(1.05);
+  }
+
+  .buttons {
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    margin-top:25px;
+    width:100%;
+    max-width:420px;
+  }
+
+  .buttons button {
+    padding:16px 22px;
+    font-size:1.2rem;
+    border:none;
+    border-radius:18px;
+    cursor:pointer;
+    transition:0.4s;
+    background: rgba(255,255,255,0.25);
+    color:white;
+    font-weight:700;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    backdrop-filter: blur(8px);
+  }
+
+  .buttons button:hover {
+    transform: translateY(-4px) scale(1.05);
+    background: rgba(255,255,255,0.4);
+  }
+
+  @media (min-width:600px){
+    h1 { font-size:3rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1 id="welcomeText" data-key="welcome">Welcome to Gift for Church</h1>
+
+<div class="lang-dropdown">
+  <div class="lang-btn" onclick="toggleLangList()">Choose Language</div>
+  <div class="lang-list" id="langList">
+    <div onclick="setLanguage('en')">English</div>
+    <div onclick="setLanguage('om')">Afan Oromo</div>
+    <div onclick="setLanguage('am')">Amharic</div>
+  </div>
+</div>
+
+<div class="audio-player">
+  <audio id="mezmurPlayer" controls>
+    <source src="mezmur.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <button class="change-mezmur-btn" onclick="document.getElementById('mezmurFileInput').click()">Change Mezmur</button>
+  <input type="file" id="mezmurFileInput" accept="audio/*" style="display:none;">
+</div>
+
+<div class="buttons">
+  <button id="signinBtn" onclick="location.href='signin.html'" data-key="signin">Sign In</button>
+  <button id="signupBtn" onclick="location.href='signup.html'" data-key="signup">Sign Up</button>
+  <button id="guestBtn" onclick="location.href='dashboard.html'" data-key="guest">Continue as Guest</button>
+</div>
+
+<script>
+function translatePage(lang) {
+  const texts = {
+    en: { welcome:"Welcome to Gift for Church", signin:"Sign In", signup:"Sign Up", guest:"Continue as Guest" },
+    om: { welcome:"Baga nagaan dhufte Gift for Church", signin:"Galmaa’i", signup:"Of Galmeessi", guest:"Akka Hojjetaa itti fufi" },
+    am: { welcome:"እንኳን ወደ Gift for Church በደህና መጡ", signin:"ግባ", signup:"ተመዝገብ", guest:"እንደ እንግዳ ቀጥል" }
+  };
+  document.getElementById("welcomeText").innerText = texts[lang].welcome;
+  document.getElementById("signinBtn").innerText = texts[lang].signin;
+  document.getElementById("signupBtn").innerText = texts[lang].signup;
+  document.getElementById("guestBtn").innerText = texts[lang].guest;
+  localStorage.setItem('language', lang);
+}
+
+function toggleLangList() {
+  const list = document.getElementById('langList');
+  list.style.display = list.style.display === 'block' ? 'none' : 'block';
+}
+
+function setLanguage(lang) {
+  translatePage(lang);
+  toggleLangList();
+}
+
+window.onload = () => {
+  const lang = localStorage.getItem('language') || 'en';
+  translatePage(lang);
+};
+
+// --- Change Mezmur with file picker ---
+document.getElementById('mezmurFileInput').addEventListener('change', function(event){
+  const file = event.target.files[0];
+  if(file){
+    const player = document.getElementById('mezmurPlayer');
+    const fileURL = URL.createObjectURL(file);
+    player.src = fileURL;
+    player.load();
+    alert("Mezmur updated!");
+  }
+});
+</script>
+</body>
+</html>

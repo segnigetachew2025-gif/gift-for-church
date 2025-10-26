@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker - Gift for Church</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  background: url('https://static.vecteezy.com/system/resources/thumbnails/054/916/832/small/serene-underwater-scene-with-sun-rays-penetrating-the-surface-illuminating-sandy-ocean-floor-creating-tranquil-atmosphere-perfect-harmony-of-nature-and-light-ideal-for-meditation-spaces-photo.jpeg')
+              no-repeat center center/cover;
+  color:#056676;
+  min-height:100vh;
+}
+header {
+  background: rgba(255,255,255,0.9);
+  color:#056676;
+  padding: 25px;
+  text-align: center;
+  border-bottom:2px solid #a8edea;
+  border-bottom-left-radius:25px;
+  border-bottom-right-radius:25px;
+  box-shadow:0 6px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(5px);
+}
+header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #056676;
+  text-shadow:2px 2px 6px rgba(255,255,255,0.6);
+}
+.container {
+  max-width: 550px;
+  margin: 40px auto;
+  padding: 25px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(6px);
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+input, select {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #056676;
+  outline:none;
+  transition: 0.3s;
+}
+input:focus, select:focus {
+  border-color:#a8edea;
+  box-shadow:0 0 8px #a8edea55;
+}
+button {
+  padding: 12px;
+  border:none;
+  border-radius: 12px;
+  background: rgba(168, 237, 234, 0.9);
+  color:#056676;
+  cursor:pointer;
+  transition: all 0.3s;
+  font-weight:700;
+}
+button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.95);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 25px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  overflow: hidden;
+}
+th, td {
+  border: 1px solid #056676;
+  padding: 10px;
+  text-align: center;
+}
+th {
+  background: #fff9c4;
+  color:#056676;
+}
+li {
+  background: rgba(255,255,255,0.85);
+  margin-bottom:10px;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+li button {
+  background:#056676;
+  color:white;
+  padding:5px 10px;
+  border-radius:8px;
+  font-size:0.85rem;
+  transition:0.3s;
+}
+li button:hover { background:#028090; }
+.backBtn {
+  margin-top:15px;
+  padding:10px 15px;
+  border:none;
+  border-radius:12px;
+  background: rgba(168, 237, 234, 0.9);
+  color:#056676;
+  cursor:pointer;
+  transition:0.3s;
+  font-weight:700;
+}
+.backBtn:hover {
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.95);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 data-lang="expense">Expense Tracker</h1>
+</header>
+
+<div class="container">
+  <form id="expenseForm">
+    <select id="expenseCategory" required>
+      <option value="" disabled selected data-lang="selectCategory">Select Category</option>
+      <option value="project" data-lang="project">Project Expense</option>
+      <option value="purchase" data-lang="purchase">Purchase of Other Items Expense</option>
+      <option value="offer" data-lang="offer">Offer Expense</option>
+      <option value="invitation" data-lang="invitation">Invitation Expense</option>
+      <option value="support" data-lang="support">Support Expense</option>
+      <option value="salary" data-lang="salary">Salary Expense</option>
+      <option value="synod" data-lang="synod">Payment to the Synod</option>
+    </select>
+    <input type="text" id="expenseReason" placeholder="Reason for Expense" required data-lang="reason">
+    <input type="number" id="expenseAmount" placeholder="Amount (ETB)" required data-lang="amount">
+    <button type="submit" data-lang="addExpense">Add Expense</button>
+  </form>
+
+  <h2 data-lang="allExpenses">All Expenses</h2>
+  <table>
+    <thead>
+      <tr><th data-lang="category">Category</th><th data-lang="reason">Reason</th><th data-lang="amount">Amount (ETB)</th><th data-lang="action">Action</th></tr>
+    </thead>
+    <tbody id="expenseList"></tbody>
+  </table>
+
+  <button class="backBtn" data-lang="backToDashboard" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('currentUser'));
+if(!user){ alert('Login required'); window.location.href='index.html'; }
+
+const expenseForm = document.getElementById('expenseForm');
+const expenseList = document.getElementById('expenseList');
+
+function loadExpenses(){
+  let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  expenseList.innerHTML = '';
+  expenses.forEach((e,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${e.category}</td><td>${e.reason}</td><td>${e.amount}</td><td><button onclick="removeExpense(${i})">Remove</button></td>`;
+    expenseList.appendChild(tr);
+  });
+}
+
+function removeExpense(i){
+  let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  expenses.splice(i,1);
+  localStorage.setItem('expenses',JSON.stringify(expenses));
+  loadExpenses();
+}
+
+expenseForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const category = document.getElementById('expenseCategory').value;
+  const reason = document.getElementById('expenseReason').value.trim();
+  const amount = parseFloat(document.getElementById('expenseAmount').value);
+  if(!category || !reason || isNaN(amount) || amount <=0) return alert('Enter valid data!');
+  let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  expenses.push({category, reason, amount});
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+  expenseForm.reset();
+  loadExpenses();
+});
+
+loadExpenses();
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

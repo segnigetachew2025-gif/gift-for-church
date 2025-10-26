@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset Management - Gift for Church</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  background: url('https://static.vecteezy.com/system/resources/thumbnails/054/916/832/small/serene-underwater-scene-with-sun-rays-penetrating-the-surface-illuminating-sandy-ocean-floor-creating-tranquil-atmosphere-perfect-harmony-of-nature-and-light-ideal-for-meditation-spaces-photo.jpeg') no-repeat center center/cover;
+  min-height:100vh;
+  color:#056676;
+}
+header {
+  background: rgba(255,255,255,0.9);
+  color:#056676;
+  padding: 25px;
+  text-align: center;
+  border-bottom:2px solid #a8edea;
+  border-bottom-left-radius:25px;
+  border-bottom-right-radius:25px;
+  box-shadow:0 6px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(5px);
+}
+header h1 { margin:0; font-size:2rem; color:#056676; text-shadow:2px 2px 6px rgba(255,255,255,0.6);}
+.container {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 25px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(6px);
+  text-align: center;
+}
+select, input, textarea { width:100%; padding:10px; margin:8px 0; border-radius:12px; border:1px solid #056676; font-size:1rem; outline:none;}
+select:focus, input:focus, textarea:focus { border-color:#a8edea; box-shadow:0 0 8px #a8edea55; }
+button { padding:12px; border:none; border-radius:12px; background: rgba(168, 237, 234, 0.9); color:#056676; font-weight:700; cursor:pointer; transition:0.3s;}
+button:hover { transform:translateY(-2px) scale(1.03); background: rgba(255,255,255,0.95);}
+table { width:100%; border-collapse: collapse; margin-top:20px; background: rgba(255,255,255,0.8); border-radius:10px; overflow:hidden;}
+th, td { border:1px solid #056676; padding:8px; text-align:center;}
+th { background:#fff9c4; }
+.backBtn { margin-top:15px; padding:10px 15px; border:none; border-radius:12px; background: rgba(168, 237, 234, 0.9); color:#056676; cursor:pointer; font-weight:700; transition:0.3s;}
+.backBtn:hover { transform:translateY(-2px) scale(1.03); background: rgba(255,255,255,0.95);}
+.totalDisplay { margin-top:10px; font-weight:bold; color:#056676;}
+</style>
+</head>
+<body>
+
+<header><h1>Asset Management</h1></header>
+
+<div class="container">
+  <select id="typeSelect">
+    <option value="">Select Type</option>
+    <option value="income">Income</option>
+    <option value="expense">Expenses</option>
+  </select>
+
+  <select id="categorySelect" style="display:none;">
+    <option value="">Select Category</option>
+  </select>
+
+  <select id="subCategorySelect" style="display:none;">
+    <option value="">Select Subcategory</option>
+  </select>
+
+  <form id="assetForm" style="display:none;">
+    <input type="text" id="recordName" placeholder="Name / Description" required>
+    <input type="number" id="recordAmount" placeholder="Amount (ETB)" required min="1">
+    <input type="date" id="recordDate" value="" required>
+    <textarea id="recordNotes" placeholder="Notes (optional)"></textarea>
+    <button type="submit">Add Record</button>
+  </form>
+
+  <table id="recordTable" style="display:none;">
+    <thead>
+      <tr><th>Name / Description</th><th>Amount</th><th>Date</th><th>Notes</th><th>Action</th></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="totalDisplay" id="totalDisplay"></div>
+
+  <button class="backBtn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('currentUser'));
+if(!user){ alert('Login required'); window.location.href='index.html'; }
+
+const categories = {
+  income: {
+    "Tithe 1/10": [],
+    "Sacrifice": [],
+    "Major": [],
+    "Various Fruits and Vegetables": [],
+    "Special Gifts": ["Missionary","The Feast of the Gospel","Conference","Gifts of Love","Others"],
+    "Fund Raising": ["Construction of Church","Purchase of Cemetery Land","Construction of a Chapel"],
+    "School of Kindergarten": ["Monthly Payments","Registration","Others"]
+  },
+  expense: {
+    "Salaries of Servants": [],
+    "Pity Cash": ["Phone","Paper","Water","Light Power","Sanitary Facilities","Musical Instruments","The Legal Robe","The Day of the Festival","Transport","Support the Poor","Building Materials","Conference","Various Trainings","The Synod","Perispiiter","For Educational Purposes","Theological Education"]
+  }
+};
+
+let currentType = '', currentCategory = '', currentSubCategory='';
+
+const typeSelect = document.getElementById('typeSelect');
+const categorySelect = document.getElementById('categorySelect');
+const subCategorySelect = document.getElementById('subCategorySelect');
+const assetForm = document.getElementById('assetForm');
+const tableBody = document.getElementById('tableBody');
+const totalDisplay = document.getElementById('totalDisplay');
+const recordDate = document.getElementById('recordDate');
+
+recordDate.value = new Date().toISOString().split('T')[0];
+
+typeSelect.addEventListener('change', ()=>{
+  currentType = typeSelect.value;
+  categorySelect.innerHTML='<option value="">Select Category</option>';
+  subCategorySelect.style.display='none';
+  assetForm.style.display='none';
+  document.getElementById('recordTable').style.display='none';
+  totalDisplay.innerText='';
+  if(currentType){
+    Object.keys(categories[currentType]).forEach(cat=>{
+      const option=document.createElement('option');
+      option.value=cat;
+      option.innerText=cat;
+      categorySelect.appendChild(option);
+    });
+    categorySelect.style.display='block';
+  } else { categorySelect.style.display='none'; }
+});
+
+categorySelect.addEventListener('change', ()=>{
+  currentCategory=categorySelect.value;
+  subCategorySelect.innerHTML='<option value="">Select Subcategory</option>';
+  assetForm.style.display='none';
+  document.getElementById('recordTable').style.display='none';
+  totalDisplay.innerText='';
+  if(currentCategory){
+    const subs=categories[currentType][currentCategory];
+    if(subs.length>0){
+      subs.forEach(s=>{
+        const option=document.createElement('option');
+        option.value=s;
+        option.innerText=s;
+        subCategorySelect.appendChild(option);
+      });
+      subCategorySelect.style.display='block';
+    } else {
+      subCategorySelect.style.display='none';
+      showForm();
+    }
+  } else { subCategorySelect.style.display='none'; }
+});
+
+subCategorySelect.addEventListener('change', ()=>{
+  currentSubCategory=subCategorySelect.value;
+  if(currentSubCategory) showForm();
+});
+
+function showForm(){
+  assetForm.style.display='block';
+  document.getElementById('recordTable').style.display='block';
+  loadRecords();
+}
+
+assetForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name=document.getElementById('recordName').value.trim();
+  const amount=parseFloat(document.getElementById('recordAmount').value);
+  const date=document.getElementById('recordDate').value;
+  const notes=document.getElementById('recordNotes').value.trim();
+  const subCat = subCategorySelect.style.display==='block'?currentSubCategory:currentCategory;
+  if(!name||isNaN(amount)||amount<=0) return alert('Enter valid data!');
+  const records=JSON.parse(localStorage.getItem('assetRecords'))||[];
+  records.push({type:currentType, category:currentCategory, subCategory:subCat, name, amount, date, notes});
+  localStorage.setItem('assetRecords', JSON.stringify(records));
+  assetForm.reset();
+  loadRecords();
+});
+
+function loadRecords(){
+  const records=JSON.parse(localStorage.getItem('assetRecords'))||[];
+  const filtered=records.filter(r=>r.type===currentType && r.category===currentCategory && (r.subCategory===(subCategorySelect.style.display==='block'?currentSubCategory:r.subCategory)));
+  tableBody.innerHTML='';
+  let total=0;
+  filtered.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.name}</td><td>${r.amount}</td><td>${r.date}</td><td>${r.notes}</td><td><button onclick="removeRecord(${i})">Remove</button></td>`;
+    tableBody.appendChild(tr);
+    total+=r.amount;
+  });
+  totalDisplay.innerText=`Total: ${total} ETB`;
+}
+
+function removeRecord(index){
+  const records=JSON.parse(localStorage.getItem('assetRecords'))||[];
+  const filtered=records.filter(r=>r.type===currentType && r.category===currentCategory && (r.subCategory===(subCategorySelect.style.display==='block'?currentSubCategory:r.subCategory)));
+  const recordToRemove=filtered[index];
+  const newRecords=records.filter(r=>r!==recordToRemove);
+  localStorage.setItem('assetRecords', JSON.stringify(newRecords));
+  loadRecords();
+}
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

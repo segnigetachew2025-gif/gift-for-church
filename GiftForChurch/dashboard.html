@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-key="dashboardTitle">Dashboard - Gift for Church</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  background: url('https://static.vecteezy.com/system/resources/thumbnails/054/916/832/small/serene-underwater-scene-with-sun-rays-penetrating-the-surface-illuminating-sandy-ocean-floor-creating-tranquil-atmosphere-perfect-harmony-of-nature-and-light-ideal-for-meditation-spaces-photo.jpeg') 
+              no-repeat center center/cover;
+  min-height:100vh;
+  color:#056676;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+header {
+  width:100%;
+  background: rgba(255,255,255,0.9);
+  padding:20px;
+  text-align:center;
+  border-bottom:2px solid #a8edea;
+  box-shadow:0 6px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(5px);
+  position:relative;
+}
+header h1 {
+  font-size:2rem;
+  color:#056676;
+  text-shadow:2px 2px 6px rgba(255,255,255,0.5);
+}
+.lang-select {
+  position:absolute;
+  top:15px;
+  right:20px;
+  padding:8px;
+  border:none;
+  border-radius:10px;
+  background:#a8edea;
+  color:#056676;
+  font-weight:600;
+  cursor:pointer;
+}
+.container {
+  max-width:1000px;
+  margin:30px auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:20px;
+}
+button {
+  padding:20px;
+  border:none;
+  border-radius:20px;
+  background: rgba(168, 237, 234, 0.9);
+  color:#056676;
+  cursor:pointer;
+  font-weight:700;
+  font-size:1rem;
+  transition:0.3s;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+  text-align:center;
+}
+button:hover {
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+  background: rgba(255,255,255,0.95);
+}
+.logout {
+  background:#056676;
+  color:white;
+  grid-column:1/-1;
+}
+.logout:hover {
+  background:#028090;
+}
+footer {
+  text-align:center;
+  padding:15px;
+  background: rgba(255,255,255,0.9);
+  border-top:2px solid #a8edea;
+  margin-top:20px;
+  color:#056676;
+  border-radius:20px;
+  backdrop-filter: blur(5px);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 data-key="dashboardTitle">Church Dashboard</h1>
+  <select class="lang-select" id="langSelect">
+    <option value="en">English</option>
+    <option value="am">አማርኛ</option>
+    <option value="om">Afaan Oromoo</option>
+  </select>
+</header>
+
+<div class="container">
+  <button onclick="window.location.href='about.html'" data-key="about">About Us</button>
+  <button onclick="window.location.href='members.html'" data-key="members">Members</button>
+  <button onclick="window.location.href='assetsmanagment.html'">Asset Management</button>
+  <button onclick="window.location.href='programs.html'" data-key="programs">Programs</button>
+  <button onclick="window.location.href='calendar.html'" data-key="calendar">Calendar</button>
+  <button onclick="window.location.href='dailyverse.html'" data-key="dailyVerse">Daily Verse</button>
+  <button onclick="window.location.href='choir.html'" data-key="choir">Choir</button>
+  <button onclick="window.location.href='classes.html'" data-key="class">Class</button>
+  <button onclick="window.location.href='elders.html'" data-key="elder">Elders</button>
+  <button onclick="window.location.href='projects.html'" data-key="project">Projects</button>
+  <button onclick="window.location.href='media.html'" data-key="media">Media</button>
+  <button onclick="window.location.href='attendance.html'" data-key="attendance">Attendance</button>
+  <button onclick="window.location.href='donation.html'" data-key="donation">Donation</button>
+  <button onclick="window.location.href='total.html'" data-key="total">Total</button>
+  <button class="logout" onclick="logout()" data-key="logout">Logout</button>
+</div>
+
+<footer data-key="footerText">&copy; 2025 Gift for Church</footer>
+
+<script>
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+if(!currentUser){ alert('Login required'); window.location.href='index.html'; }
+
+function logout(){
+  localStorage.removeItem('currentUser');
+  window.location.href='index.html';
+}
+
+// language selector
+const langSelect = document.getElementById('langSelect');
+langSelect.addEventListener('change', () => {
+  const lang = langSelect.value;
+  localStorage.setItem('selectedLang', lang);
+  setLanguage(lang);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const savedLang = localStorage.getItem('selectedLang') || 'en';
+  langSelect.value = savedLang;
+  setLanguage(savedLang);
+});
+</script>
+
+<script src="lang.js"></script>
+</body>
+</html>

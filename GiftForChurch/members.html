@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Members - Gift for Church</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  background: url('https://static.vecteezy.com/system/resources/thumbnails/054/916/832/small/serene-underwater-scene-with-sun-rays-penetrating-the-surface-illuminating-sandy-ocean-floor-creating-tranquil-atmosphere-perfect-harmony-of-nature-and-light-ideal-for-meditation-spaces-photo.jpeg')
+              no-repeat center center/cover;
+  color:#056676;
+  min-height:100vh;
+}
+header {
+  background: rgba(255,255,255,0.9);
+  color:#056676;
+  padding:25px;
+  text-align:center;
+  border-bottom:2px solid #a8edea;
+  box-shadow:0 6px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(5px);
+}
+header h1 {
+  font-size:1.8rem;
+  color:#056676;
+  text-shadow:2px 2px 6px rgba(255,255,255,0.5);
+}
+.container {
+  max-width:600px;
+  margin:30px auto;
+  padding:20px;
+  background: rgba(255,255,255,0.85);
+  border-radius:20px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  backdrop-filter: blur(6px);
+}
+form {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-bottom:20px;
+}
+input {
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #056676;
+  outline:none;
+  transition:0.3s;
+}
+input:focus {
+  border-color:#a8edea;
+  box-shadow:0 0 8px #a8edea55;
+}
+button {
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background: rgba(168, 237, 234, 0.9);
+  color:#056676;
+  cursor:pointer;
+  font-weight:700;
+  transition:all 0.3s;
+}
+button:hover {
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.95);
+}
+ul { list-style:none; padding:0; }
+li {
+  background: rgba(255,255,255,0.9);
+  margin-bottom:10px;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.15);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+li button {
+  background:#056676;
+  color:white;
+  padding:5px 10px;
+  border-radius:8px;
+  font-size:0.85rem;
+  transition:0.3s;
+}
+li button:hover { background:#028090; }
+.backBtn {
+  margin-bottom:20px;
+  padding:10px 15px;
+  border:none;
+  border-radius:12px;
+  background: rgba(168, 237, 234, 0.9);
+  color:#056676;
+  cursor:pointer;
+  transition:0.3s;
+  font-weight:700;
+}
+.backBtn:hover {
+  transform:translateY(-2px) scale(1.03);
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+  background: rgba(255,255,255,0.95);
+}
+footer {
+  text-align:center;
+  padding:15px;
+  background: rgba(255,255,255,0.85);
+  border-top:2px solid #a8edea;
+  margin-top:20px;
+  color:#056676;
+  border-radius:20px;
+  backdrop-filter: blur(5px);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Church Members</h1>
+</header>
+
+<div class="container">
+  <button class="backBtn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+
+  <form id="memberForm">
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="number" id="age" placeholder="Age" required>
+    <input type="text" id="group" placeholder="Choir/Department (Optional)">
+    <button type="submit">Add Member</button>
+  </form>
+
+  <h2>All Members</h2>
+  <ul id="memberList"></ul>
+</div>
+
+<footer>&copy; 2025 Gift for Church</footer>
+
+<script>
+const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+if(!currentUser){ alert('You must be logged in!'); window.location.href='index.html'; }
+
+const memberForm = document.getElementById('memberForm');
+const memberList = document.getElementById('memberList');
+
+function loadMembers(){
+  const members = JSON.parse(localStorage.getItem('members')) || [];
+  memberList.innerHTML = '';
+  members.forEach((m, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `${m.name}, Age: ${m.age}, Group: ${m.group || 'N/A'} <button onclick="removeMember(${index})">Remove</button>`;
+    memberList.appendChild(li);
+  });
+}
+
+function removeMember(index){
+  let members = JSON.parse(localStorage.getItem('members')) || [];
+  members.splice(index,1);
+  localStorage.setItem('members', JSON.stringify(members));
+  loadMembers();
+}
+
+memberForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const age = document.getElementById('age').value;
+  const group = document.getElementById('group').value;
+
+  let members = JSON.parse(localStorage.getItem('members')) || [];
+  members.push({name, age, group});
+  localStorage.setItem('members', JSON.stringify(members));
+  memberForm.reset();
+  loadMembers();
+});
+
+loadMembers();
+</script>
+<script src="lang.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Church Projects - Gift for Church</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body {
+  background: url('background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  min-height:100vh;
+  color:#fff;
+}
+header { background: rgba(0,72,127,0.7); padding:20px; text-align:center; border-bottom:2px solid #00d4ff; box-shadow:0 6px 25px rgba(0,0,0,0.2);}
+header h1 { font-size:1.8rem; color:#ffd; text-shadow:2px 2px 6px rgba(0,0,0,0.4);}
+.container { max-width:700px; margin:30px auto; padding:20px; background: rgba(0,0,50,0.6); border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.3);}
+form { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+input, textarea { padding:12px; border-radius:12px; border:1px solid #00d4ff; outline:none; background:rgba(255,255,255,0.2); color:#fff; }
+input:focus, textarea:focus { border-color:#00ffff; box-shadow:0 0 8px #00ffff55; }
+button { padding:12px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; font-weight:600; transition:all 0.3s;}
+button:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 8px 25px rgba(0,212,255,0.5);}
+ul { list-style:none; padding:0; }
+li { background: rgba(0,0,50,0.5); margin-bottom:10px; padding:15px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; }
+li button { background:#00bcd4; color:white; padding:5px 10px; border-radius:8px; font-size:0.85rem; transition:0.3s; }
+li button:hover { background:#00ffff; color:#000; }
+.backBtn { margin-bottom:20px; padding:10px 15px; border:none; border-radius:12px; background:#00d4ff; color:white; cursor:pointer; transition:0.3s; }
+.backBtn:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 6px 15px rgba(0,212,255,0.5);}
+footer { text-align:center; padding:15px; background: rgba(0,72,127,0.7); border-top:2px solid #00d4ff; margin-top:20px; color:#fff; border-radius:20px; backdrop-filter: blur(5px);}
+</style>
+</head>
+<body>
+
+<header><h1>Church Projects & Fund Tracker</h1></header>
+
+<div class="container">
+  <button class="backBtn" onclick="window.location.href='dashboard.html'">← Back to Dashboard</button>
+
+  <form id="projectForm">
+    <input type="text" id="projectName" placeholder="Project Name" required>
+    <textarea id="projectDesc" placeholder="Project Description"></textarea>
+    <input type="file" id="projectFile" accept="image/*,.pdf,.doc,.docx,.txt">
+    <button type="submit">Add Project</button>
+  </form>
+
+  <h2>All Projects</h2>
+  <ul id="projectList"></ul>
+</div>
+
+<footer>&copy; 2025 Gift for Church</footer>
+
+<script>
+const user = JSON.parse(localStorage.getItem('currentUser'));
+if(!user){ alert('Login required'); window.location.href='index.html'; }
+
+const projectForm = document.getElementById('projectForm');
+const projectList = document.getElementById('projectList');
+
+function loadProjects(){
+  let projects = JSON.parse(localStorage.getItem('projects')) || [];
+  projectList.innerHTML = '';
+  projects.forEach((p,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${p.name}</strong><br>${p.desc || ''}`;
+    if(p.file){ li.innerHTML += `<div class="project-files"><a href="${p.file.data}" target="_blank">${p.file.name}</a></div>`; }
+    li.innerHTML += `<button onclick="removeProject(${i})">Remove</button>`;
+    projectList.appendChild(li);
+  });
+}
+
+function removeProject(i){
+  let projects = JSON.parse(localStorage.getItem('projects')) || [];
+  projects.splice(i,1);
+  localStorage.setItem('projects', JSON.stringify(projects));
+  loadProjects();
+}
+
+projectForm.addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('projectName').value;
+  const desc = document.getElementById('projectDesc').value;
+  const fileInput = document.getElementById('projectFile');
+  let projects = JSON.parse(localStorage.getItem('projects')) || [];
+
+  if(fileInput.files.length > 0){
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(evt){
+      projects.push({name, desc, file:{name:file.name, data:evt.target.result}});
+      localStorage.setItem('projects', JSON.stringify(projects));
+      projectForm.reset();
+      loadProjects();
+    }
+    reader.readAsDataURL(file);
+  } else {
+    projects.push({name, desc});
+    localStorage.setItem('projects', JSON.stringify(projects));
+    projectForm.reset();
+    loadProjects();
+  }
+});
+
+loadProjects();
+</script>
+<script src="lang.js"></script>
+</body>
+</html>
